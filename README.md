@@ -2,7 +2,7 @@
 
 Generated app for:
 
-> Create a webpage titled 'Currency Summary' that loads rates.json from the same folder and displays the total of all numeric values in green inside #total-json.
+> Create a page that loads rates.json from attachments, displays all currency rates inside a table #currency-table, and shows the average rate in #avg-rate.
 
 ---
 MIT License
