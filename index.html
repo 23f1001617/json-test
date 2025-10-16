@@ -3,39 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currency Summary</title>
+    <title>Currency Rates</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f4f4f4;
         }
-        #total-json {
-            color: green;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #avg-rate {
             font-weight: bold;
-            font-size: 24px;
+            font-size: 1.2em;
         }
     </style>
 </head>
 <body>
-    <h1>Currency Summary</h1>
-    <div id="total-json">Total: $0</div>
 
-    <script>
-        fetch('rates.json')
-            .then(response => response.json())
-            .then(data => {
-                let total = 0;
-                for (const key in data) {
-                    if (typeof data[key] === 'number') {
-                        total += data[key];
-                    }
-                }
-                document.getElementById('total-json').innerText = 'Total: $' + total.toFixed(2);
-            })
-            .catch(error => {
-                console.error('Error fetching the JSON data:', error);
+<h1>Currency Rates</h1>
+<table id="currency-table">
+    <thead>
+        <tr>
+            <th>Currency</th>
+            <th>Rate</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<p>Average Rate: <span id="avg-rate">0</span></p>
+
+<script>
+    fetch('rates.json')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector('#currency-table tbody');
+            let totalRate = 0;
+            let count = 0;
+
+            data.rates.forEach(rate => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${rate.currency}</td><td>${rate.value}</td>`;
+                tableBody.appendChild(row);
+                totalRate += rate.value;
+                count++;
             });
-    </script>
+
+            const avgRate = totalRate / count;
+            document.getElementById('avg-rate').textContent = avgRate.toFixed(2);
+        })
+        .catch(error => console.error('Error loading rates:', error));
+</script>
+
 
         <script>
         // 🔄 Universal JSON handler
@@ -68,4 +99,4 @@
         </script>
         </body>
 </html>
-<!-- build-id: 2025-10-15T17:04:37.500598 -->
+<!-- build-id: 2025-10-16T07:31:42.575375 -->
