@@ -7,17 +7,19 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 20px;
             background-color: #f4f4f4;
+            color: #333;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-top: 20px;
         }
         th, td {
+            padding: 10px;
             border: 1px solid #ddd;
-            padding: 8px;
             text-align: left;
         }
         th {
@@ -25,48 +27,83 @@
             color: white;
         }
         #avg-rate {
+            margin-top: 20px;
             font-weight: bold;
-            font-size: 1.2em;
+        }
+        #toggle-theme {
+            margin-bottom: 20px;
+        }
+        .dark {
+            background-color: #333;
+            color: #f4f4f4;
+        }
+        .dark table {
+            border-color: #555;
+        }
+        .dark th {
+            background-color: #555;
         }
     </style>
 </head>
 <body>
 
-<h1>Currency Rates</h1>
-<table id="currency-table">
-    <thead>
-        <tr>
-            <th>Currency</th>
-            <th>Rate</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
-<p>Average Rate: <span id="avg-rate">0</span></p>
+    <button id="toggle-theme">Toggle Theme</button>
+    <h1>Currency Rates</h1>
+    <table id="currency-table">
+        <thead>
+            <tr>
+                <th>Currency</th>
+                <th>Rate</th>
+            </tr>
+        </thead>
+        <tbody id="currency-body">
+            <tr>
+                <td colspan="2">Loading data...</td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="avg-rate">Average Rate: Loading...</div>
 
-<script>
-    fetch('rates.json')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.querySelector('#currency-table tbody');
-            let totalRate = 0;
-            let count = 0;
+    <script>
+        const currencyBody = document.getElementById('currency-body');
+        const avgRateDiv = document.getElementById('avg-rate');
 
-            data.rates.forEach(rate => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${rate.currency}</td><td>${rate.value}</td>`;
-                tableBody.appendChild(row);
-                totalRate += rate.value;
-                count++;
+        fetch('./rates.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                let totalRate = 0;
+                let count = 0;
+                currencyBody.innerHTML = '';
+
+                data.forEach(rate => {
+                    const rateValue = parseFloat(rate.rate);
+                    totalRate += rateValue;
+                    count++;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${rate.currency}</td><td>${Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rateValue)}</td>`;
+                    currencyBody.appendChild(row);
+                });
+
+                const averageRate = totalRate / count;
+                avgRateDiv.innerHTML = `Average Rate: ${Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(averageRate)}`;
+            })
+            .catch(error => {
+                currencyBody.innerHTML = '<tr><td colspan="2">Failed to load data.</td></tr>';
+                avgRateDiv.innerHTML = 'Average Rate: N/A';
+                console.error('There was a problem with the fetch operation:', error);
             });
 
-            const avgRate = totalRate / count;
-            document.getElementById('avg-rate').textContent = avgRate.toFixed(2);
-        })
-        .catch(error => console.error('Error loading rates:', error));
-</script>
+        document.getElementById('toggle-theme').addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+        });
+    </script>
 
+    <!-- build-id: 2023-10-01T12:00:00Z -->
 
         <script>
         // 🔄 Universal JSON handler
@@ -99,4 +136,4 @@
         </script>
         </body>
 </html>
-<!-- build-id: 2025-10-16T07:31:42.575375 -->
+<!-- build-id: 2025-10-16T11:29:25.775052 -->
